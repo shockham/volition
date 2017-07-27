@@ -1,3 +1,9 @@
+/*!
+    Small input lib.
+*/
+
+#![deny(missing_docs)]
+
 extern crate winit;
 
 use winit::Window;
