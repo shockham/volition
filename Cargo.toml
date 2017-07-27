@@ -2,6 +2,12 @@
 name = "volition"
 version = "0.1.0"
 authors = ["shockham <samuel.hockham@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/shockham/volition"
+homepage = "https://github.com/shockham/volition"
+documentation = "https://docs.rs/volition/"
+description = "Simple input lib"
 
 [dependencies]
 glium = "0.17"

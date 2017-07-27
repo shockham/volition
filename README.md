@@ -1,3 +1,3 @@
 # volition
 
-Simple input lib
+Simple input lib broken out of [caper](https://github.com/shockham/caper)
