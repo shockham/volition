@@ -41,11 +41,16 @@ pub struct Input {
     cursor_grabbed: bool,
     /// Event loop for the window
     event_loop: EventsLoop,
+    /// The Window itself
+    window: Window,
 }
 
 impl Input {
     /// Creates a new Input instance
     pub fn new() -> Input {
+        let events_loop = EventsLoop::new();
+        let window = Window::new(&events_loop).unwrap();
+
         Input {
             mouse_pos : (0, 0),
             mouse_delta : (0f32, 0f32),
@@ -60,14 +65,16 @@ impl Input {
             hide_mouse: true,
             cursor_grabbed: false,
             event_loop: EventsLoop::new(),
+            window: window,
         }
     }
 
     /// This method updates the state of the inputs
-    pub fn update_inputs(&mut self, window: &Window) {
+    pub fn update_inputs(&mut self) {
+        let window = &self.window;
         let (width, height) = window.get_inner_size().unwrap_or((800, 600));
         let hidpi_factor = window.hidpi_factor();
-        
+
         // reset properties
         {
             // reset the delta in case the mouse does not move
