@@ -1,16 +1,16 @@
-extern crate glium;
+extern crate winit;
 
-use glium::Display;
-pub use glium::glutin::VirtualKeyCode as Key;
-pub use glium::glutin::MouseButton as MouseButton;
-use glium::glutin::MouseScrollDelta;
-use glium::glutin::KeyboardInput;
-use glium::glutin::EventsLoop;
-use glium::glutin::WindowEvent::{ MouseMoved, MouseInput, MouseWheel, ReceivedCharacter };
-use glium::glutin::WindowEvent::KeyboardInput as WKeyboardInput;
-use glium::glutin::Event::WindowEvent;
-use glium::glutin::ElementState::{ Pressed, Released };
-use glium::glutin::CursorState::{ Normal, Hide };
+use winit::Window;
+pub use winit::VirtualKeyCode as Key;
+pub use winit::MouseButton as MouseButton;
+use winit::MouseScrollDelta;
+use winit::KeyboardInput;
+use winit::EventsLoop;
+use winit::WindowEvent::{ MouseMoved, MouseInput, MouseWheel, ReceivedCharacter };
+use winit::WindowEvent::KeyboardInput as WKeyboardInput;
+use winit::Event::WindowEvent;
+use winit::ElementState::{ Pressed, Released };
+use winit::CursorState::{ Normal, Hide };
 
 
 /// struct for abstracting the state for all the inputs
@@ -64,8 +64,7 @@ impl Input {
     }
 
     /// This method updates the state of the inputs
-    pub fn update_inputs(&mut self, display: &Display) {
-        let window = display.gl_window();
+    pub fn update_inputs(&mut self, window: &Window) {
         let (width, height) = window.get_inner_size().unwrap_or((800, 600));
         let hidpi_factor = window.hidpi_factor();
         
