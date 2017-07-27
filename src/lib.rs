@@ -64,7 +64,7 @@ impl Input {
             mouse_btns_released: Vec::new(),
             hide_mouse: true,
             cursor_grabbed: false,
-            event_loop: EventsLoop::new(),
+            event_loop: events_loop,
             window: window,
         }
     }
@@ -89,7 +89,6 @@ impl Input {
             self.characters_down.clear();
         }
 
-        let event_loop = &mut self.event_loop;
         let keys_down = &mut self.keys_down;
         let keys_pressed = &mut self.keys_pressed;
         let keys_released = &mut self.keys_released;
@@ -102,7 +101,7 @@ impl Input {
         let characters_down = &mut self.characters_down;
 
         // polling and handling the events received by the display
-        event_loop.poll_events(|event| {
+        self.event_loop.poll_events(|event| {
             if let WindowEvent { event, .. } = event {
                 match event {
                     WKeyboardInput {
