@@ -46,16 +46,13 @@ pub struct Input {
     /// Internal field to track if the cursor is grabbed
     cursor_grabbed: bool,
     /// Event loop for the window
-    event_loop: EventsLoop,
-    /// The Window itself
-    window: Window,
+    events_loop: EventsLoop,
 }
 
 impl Input {
     /// Creates a new Input instance
     pub fn new() -> Input {
         let events_loop = EventsLoop::new();
-        let window = Window::new(&events_loop).unwrap();
 
         Input {
             mouse_pos : (0, 0),
@@ -70,14 +67,31 @@ impl Input {
             mouse_btns_released: Vec::new(),
             hide_mouse: true,
             cursor_grabbed: false,
-            event_loop: events_loop,
-            window: window,
+            events_loop: events_loop,
+        }
+    }
+
+    /// Creates a new Input instance from existing events_loop
+    pub fn from_existing(events_loop: EventsLoop) -> Input {
+        Input {
+            mouse_pos : (0, 0),
+            mouse_delta : (0f32, 0f32),
+            mouse_wheel_delta: (0f32, 0f32),
+            keys_down : Vec::new(),
+            keys_pressed: Vec::new(),
+            keys_released: Vec::new(),
+            characters_down: Vec::new(),
+            mouse_btns_down: Vec::new(),
+            mouse_btns_pressed: Vec::new(),
+            mouse_btns_released: Vec::new(),
+            hide_mouse: true,
+            cursor_grabbed: false,
+            events_loop: events_loop,
         }
     }
 
     /// This method updates the state of the inputs
-    pub fn update_inputs(&mut self) {
-        let window = &self.window;
+    pub fn update_inputs(&mut self, window: &Window) {
         let (width, height) = window.get_inner_size().unwrap_or((800, 600));
         let hidpi_factor = window.hidpi_factor();
 
@@ -107,7 +121,7 @@ impl Input {
         let characters_down = &mut self.characters_down;
 
         // polling and handling the events received by the display
-        self.event_loop.poll_events(|event| {
+        self.events_loop.poll_events(|event| {
             if let WindowEvent { event, .. } = event {
                 match event {
                     WKeyboardInput {
