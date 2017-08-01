@@ -1,5 +1,5 @@
 /*!
-    Small input lib.
+    Small input lib based on [winit](https://github.com/tomaka/winit).
 */
 
 #![deny(missing_docs)]
