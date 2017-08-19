@@ -2,7 +2,7 @@ extern crate volition;
 extern crate winit;
 
 use volition::Input;
-use winit::{ EventsLoop, Window };
+use winit::{EventsLoop, Window};
 
 fn main() {
     let events_loop = EventsLoop::new();
