@@ -12,7 +12,7 @@ pub use winit::MouseButton;
 use winit::MouseScrollDelta;
 use winit::KeyboardInput;
 use winit::EventsLoop;
-use winit::WindowEvent::{MouseMoved, MouseInput, MouseWheel, ReceivedCharacter};
+use winit::WindowEvent::{MouseInput, MouseWheel, ReceivedCharacter, AxisMotion};
 use winit::WindowEvent::KeyboardInput as WKeyboardInput;
 use winit::Event::WindowEvent;
 use winit::ElementState::{Pressed, Released};
@@ -148,14 +148,21 @@ impl Input {
                     keys_down.retain(|&k| k != vkey.unwrap());
                     keys_released.push(vkey.unwrap());
                 }
-                MouseMoved { position: (x, y), .. } => {
-                    let mouse_diff = (
-                        (width / 2) as i32 - (x as f32 / hidpi_factor) as i32,
-                        (height / 2) as i32 - (y as f32 / hidpi_factor) as i32,
-                    );
-                    mouse_delta.0 = (mouse_diff.0 as f32) / (width as f32);
-                    mouse_delta.1 = (mouse_diff.1 as f32) / (height as f32);
-                    (*mouse_pos) = (x as i32, y as i32);
+                AxisMotion { axis, value, .. } => {
+                    match axis {
+                        1 => {
+                            let diff = (width / 2) as i32 - (value as f32 / hidpi_factor) as i32;
+                            mouse_delta.0 = diff as f32 / width as f32;
+                            mouse_pos.0 = value as i32;
+                        }
+                        0 => {
+                            let diff = (height / 2) as i32 - (value as f32 / hidpi_factor) as i32;
+                            mouse_delta.1 = diff as f32 / height as f32;
+                            mouse_pos.1 = value as i32;
+                        }
+                        _ => {}
+                    }
+                    println!("axis:{}   value:{}", axis, value);
                 }
                 MouseInput {
                     state: Pressed,
