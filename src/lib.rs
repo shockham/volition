@@ -162,7 +162,6 @@ impl Input {
                         }
                         _ => {}
                     }
-                    println!("axis:{}   value:{}", axis, value);
                 }
                 MouseInput {
                     state: Pressed,
