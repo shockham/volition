@@ -22,7 +22,7 @@ use winit::CursorState::{Normal, Hide};
 /// struct for abstracting the state for all the inputs
 pub struct Input {
     /// The position of the mouse
-    pub mouse_pos: (i32, i32),
+    pub mouse_pos: (f32, f32),
     /// The difference in mouse position from the last frame
     pub mouse_delta: (f32, f32),
     /// The difference in position of the mouse when from the previous frame
@@ -55,7 +55,7 @@ impl Input {
         let events_loop = EventsLoop::new();
 
         Input {
-            mouse_pos: (0, 0),
+            mouse_pos: (0f32, 0f32),
             mouse_delta: (0f32, 0f32),
             mouse_wheel_delta: (0f32, 0f32),
             keys_down: Vec::new(),
@@ -74,7 +74,7 @@ impl Input {
     /// Creates a new Input instance from existing events_loop
     pub fn from_existing(events_loop: EventsLoop) -> Input {
         Input {
-            mouse_pos: (0, 0),
+            mouse_pos: (0f32, 0f32),
             mouse_delta: (0f32, 0f32),
             mouse_wheel_delta: (0f32, 0f32),
             keys_down: Vec::new(),
@@ -151,14 +151,14 @@ impl Input {
                 AxisMotion { axis, value, .. } => {
                     match axis {
                         1 => {
-                            let diff = (width / 2) as i32 - (value as f32 / hidpi_factor) as i32;
-                            mouse_delta.0 = diff as f32 / width as f32;
-                            mouse_pos.0 = value as i32;
+                            let diff = (height as f32 / 2f32) - (value as f32 / hidpi_factor);
+                            mouse_delta.1 = diff / height as f32;
+                            mouse_pos.1 = value as f32;
                         }
                         0 => {
-                            let diff = (height / 2) as i32 - (value as f32 / hidpi_factor) as i32;
-                            mouse_delta.1 = diff as f32 / height as f32;
-                            mouse_pos.1 = value as i32;
+                            let diff = (width as f32 / 2f32) - (value as f32 / hidpi_factor);
+                            mouse_delta.0 = diff / width as f32;
+                            mouse_pos.0 = value as f32;
                         }
                         _ => {}
                     }
