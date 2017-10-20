@@ -134,8 +134,10 @@ impl Input {
                     },
                     ..
                 } => {
-                    keys_down.push(vkey.unwrap());
-                    keys_pressed.push(vkey.unwrap());
+                    if let Some(key) = vkey {
+                        keys_down.push(key);
+                        keys_pressed.push(key);
+                    }
                 }
                 WKeyboardInput {
                     input: KeyboardInput {
@@ -145,8 +147,10 @@ impl Input {
                     },
                     ..
                 } => {
-                    keys_down.retain(|&k| k != vkey.unwrap());
-                    keys_released.push(vkey.unwrap());
+                    if let Some(key) = vkey {
+                        keys_down.retain(|&k| k != key);
+                        keys_released.push(key);
+                    }
                 }
                 AxisMotion { axis, value, .. } => {
                     match axis {
