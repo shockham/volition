@@ -92,8 +92,7 @@ impl Input {
 
     /// This method updates the state of the inputs
     pub fn update_inputs(&mut self, window: &Window) {
-        let (width, height) = window.get_inner_size().unwrap_or((800, 600));
-        let hidpi_factor = window.hidpi_factor();
+        let (width, height) = window.get_outer_size().unwrap();
 
         // reset properties
         {
@@ -155,12 +154,12 @@ impl Input {
                 AxisMotion { axis, value, .. } => {
                     match axis {
                         1 => {
-                            let diff = (height as f32 / 2f32) - (value as f32 / hidpi_factor);
+                            let diff = (height as f32 / 2f32) - value as f32;
                             mouse_delta.1 = diff / height as f32;
                             mouse_pos.1 = value as f32;
                         }
                         0 => {
-                            let diff = (width as f32 / 2f32) - (value as f32 / hidpi_factor);
+                            let diff = (width as f32 / 2f32) - value as f32;
                             mouse_delta.0 = diff / width as f32;
                             mouse_pos.0 = value as f32;
                         }
