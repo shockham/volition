@@ -12,7 +12,7 @@ pub use winit::MouseButton;
 use winit::MouseScrollDelta;
 use winit::KeyboardInput;
 use winit::EventsLoop;
-use winit::WindowEvent::{MouseInput, MouseWheel, ReceivedCharacter};
+use winit::WindowEvent::{MouseInput, MouseWheel, ReceivedCharacter, MouseMoved};
 use winit::WindowEvent::KeyboardInput as WKeyboardInput;
 use winit::DeviceEvent::Motion;
 use winit::Event::{WindowEvent, DeviceEvent};
@@ -121,82 +121,81 @@ impl Input {
         let characters_down = &mut self.characters_down;
 
         // polling and handling the events received by the display
-        self.events_loop.poll_events(|event| {
-            match event {
-                WindowEvent { event, .. } => {
-                    match event {
-                        WKeyboardInput {
-                            input: KeyboardInput {
-                                state: Pressed,
-                                virtual_keycode: vkey,
-                                ..
-                            },
-                            ..
-                        } => {
-                            if let Some(key) = vkey {
-                                keys_down.push(key);
-                                keys_pressed.push(key);
-                            }
-                        }
-                        WKeyboardInput {
-                            input: KeyboardInput {
-                                state: Released,
-                                virtual_keycode: vkey,
-                                ..
-                            },
-                            ..
-                        } => {
-                            if let Some(key) = vkey {
-                                keys_down.retain(|&k| k != key);
-                                keys_released.push(key);
-                            }
-                        }
-                        MouseInput {
+        self.events_loop.poll_events(|event| match event {
+            WindowEvent { event, .. } => {
+                match event {
+                    WKeyboardInput {
+                        input: KeyboardInput {
                             state: Pressed,
-                            button: btn,
+                            virtual_keycode: vkey,
                             ..
-                        } => {
-                            mouse_btns_down.push(btn);
-                            mouse_btns_pressed.push(btn);
+                        },
+                        ..
+                    } => {
+                        if let Some(key) = vkey {
+                            keys_down.push(key);
+                            keys_pressed.push(key);
                         }
-                        MouseInput {
+                    }
+                    WKeyboardInput {
+                        input: KeyboardInput {
                             state: Released,
-                            button: btn,
+                            virtual_keycode: vkey,
                             ..
-                        } => {
-                            mouse_btns_down.retain(|&mb| mb != btn);
-                            mouse_btns_released.push(btn);
+                        },
+                        ..
+                    } => {
+                        if let Some(key) = vkey {
+                            keys_down.retain(|&k| k != key);
+                            keys_released.push(key);
                         }
-                        MouseWheel { delta, .. } => {
-                            (*mouse_wheel_delta) = match delta {
-                                MouseScrollDelta::LineDelta(x, y) => (x, y),
-                                MouseScrollDelta::PixelDelta(x, y) => (x, y),
-                            };
-                        }
-                        ReceivedCharacter(c) => characters_down.push(c),
-                        _ => (),
                     }
-                },
-                DeviceEvent { event, .. } => {
-                    match event {
-                        Motion { axis, value } => {
-                            match axis {
-                                1 => {
-                                    mouse_delta.1 = -value as f32;
-                                    mouse_pos.1 = ((value + 1f64) / 2f64) as f32 * height as f32;
-                                }
-                                0 => {
-                                    mouse_delta.0 = -value as f32;
-                                    mouse_pos.0 = ((value + 1f64) / 2f64) as f32 * width as f32;
-                                }
-                                _ => {}
-                            }
-                        }
-                        _ => (),
+                    MouseMoved { position: (x, y), .. } => {
+                        (*mouse_pos) = (x as f32, y as f32);
                     }
+                    MouseInput {
+                        state: Pressed,
+                        button: btn,
+                        ..
+                    } => {
+                        mouse_btns_down.push(btn);
+                        mouse_btns_pressed.push(btn);
+                    }
+                    MouseInput {
+                        state: Released,
+                        button: btn,
+                        ..
+                    } => {
+                        mouse_btns_down.retain(|&mb| mb != btn);
+                        mouse_btns_released.push(btn);
+                    }
+                    MouseWheel { delta, .. } => {
+                        (*mouse_wheel_delta) = match delta {
+                            MouseScrollDelta::LineDelta(x, y) => (x, y),
+                            MouseScrollDelta::PixelDelta(x, y) => (x, y),
+                        };
+                    }
+                    ReceivedCharacter(c) => characters_down.push(c),
+                    _ => (),
                 }
-                _ => (),
             }
+            DeviceEvent { event, .. } => {
+                match event {
+                    Motion { axis, value } => {
+                        match axis {
+                            1 => {
+                                mouse_delta.1 = -value as f32;
+                            }
+                            0 => {
+                                mouse_delta.0 = -value as f32;
+                            }
+                            _ => {}
+                        }
+                    }
+                    _ => (),
+                }
+            }
+            _ => (),
         });
 
         if self.hide_mouse {
