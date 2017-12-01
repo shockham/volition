@@ -12,7 +12,7 @@ pub use winit::MouseButton;
 use winit::MouseScrollDelta;
 use winit::KeyboardInput;
 use winit::EventsLoop;
-use winit::WindowEvent::{MouseInput, MouseWheel, ReceivedCharacter, MouseMoved};
+use winit::WindowEvent::{MouseInput, MouseWheel, ReceivedCharacter, CursorMoved};
 use winit::WindowEvent::KeyboardInput as WKeyboardInput;
 use winit::DeviceEvent::Motion;
 use winit::Event::{WindowEvent, DeviceEvent};
@@ -150,7 +150,7 @@ impl Input {
                             keys_released.push(key);
                         }
                     }
-                    MouseMoved { position: (x, y), .. } => {
+                    CursorMoved { position: (x, y), .. } => {
                         (*mouse_pos) = (x as f32, y as f32);
                     }
                     MouseInput {
