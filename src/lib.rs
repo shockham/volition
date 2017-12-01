@@ -14,7 +14,7 @@ use winit::KeyboardInput;
 use winit::EventsLoop;
 use winit::WindowEvent::{MouseInput, MouseWheel, ReceivedCharacter, CursorMoved};
 use winit::WindowEvent::KeyboardInput as WKeyboardInput;
-use winit::DeviceEvent::Motion;
+use winit::DeviceEvent::MouseMotion;
 use winit::Event::{WindowEvent, DeviceEvent};
 use winit::ElementState::{Pressed, Released};
 use winit::CursorState::{Normal, Hide};
@@ -181,16 +181,8 @@ impl Input {
             }
             DeviceEvent { event, .. } => {
                 match event {
-                    Motion { axis, value } => {
-                        match axis {
-                            1 => {
-                                mouse_delta.1 = -value as f32;
-                            }
-                            0 => {
-                                mouse_delta.0 = -value as f32;
-                            }
-                            _ => {}
-                        }
+                    MouseMotion { delta } => {
+                        (*mouse_delta) = (delta.0 as f32, delta.1 as f32);
                     }
                     _ => (),
                 }
