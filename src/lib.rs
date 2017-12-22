@@ -26,6 +26,8 @@ pub struct Input {
     pub mouse_pos: (f32, f32),
     /// The difference in mouse position from the last frame
     pub mouse_delta: (f32, f32),
+    /// The raw difference in mouse position from the last frame
+    pub raw_mouse_delta: (f32, f32),
     /// The difference in position of the mouse when from the previous frame
     pub mouse_wheel_delta: (f32, f32),
     /// The keys that are currently pressed down
@@ -58,6 +60,7 @@ impl Input {
         Input {
             mouse_pos: (0f32, 0f32),
             mouse_delta: (0f32, 0f32),
+            raw_mouse_delta: (0f32, 0f32),
             mouse_wheel_delta: (0f32, 0f32),
             keys_down: Vec::new(),
             keys_pressed: Vec::new(),
@@ -77,6 +80,7 @@ impl Input {
         Input {
             mouse_pos: (0f32, 0f32),
             mouse_delta: (0f32, 0f32),
+            raw_mouse_delta: (0f32, 0f32),
             mouse_wheel_delta: (0f32, 0f32),
             keys_down: Vec::new(),
             keys_pressed: Vec::new(),
@@ -113,6 +117,7 @@ impl Input {
         let keys_pressed = &mut self.keys_pressed;
         let keys_released = &mut self.keys_released;
         let mouse_delta = &mut self.mouse_delta;
+        let raw_mouse_delta = &mut self.raw_mouse_delta;
         let mouse_pos = &mut self.mouse_pos;
         let mouse_btns_down = &mut self.mouse_btns_down;
         let mouse_btns_pressed = &mut self.mouse_btns_pressed;
@@ -151,6 +156,14 @@ impl Input {
                         }
                     }
                     CursorMoved { position: (x, y), .. } => {
+                        let mouse_diff = (
+                            (width / 2) as f32 - x as f32,
+                            (height / 2) as f32 - y as f32,
+                        );
+
+                        mouse_delta.0 = mouse_diff.0;
+                        mouse_delta.1 = mouse_diff.1;
+
                         (*mouse_pos) = (x as f32, y as f32);
                     }
                     MouseInput {
@@ -182,7 +195,7 @@ impl Input {
             DeviceEvent { event, .. } => {
                 match event {
                     MouseMotion { delta } => {
-                        (*mouse_delta) = (delta.0 as f32, delta.1 as f32);
+                        (*raw_mouse_delta) = (delta.0 as f32, delta.1 as f32);
                     }
                     _ => (),
                 }
