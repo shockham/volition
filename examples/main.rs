@@ -17,5 +17,6 @@ fn main() {
         thread::sleep(Duration::new(1u64, 0u32));
         input.update_inputs(&window);
         println!("{:?}", input.keys_down);
+        println!("{:?}", input.mouse_axis_motion);
     }
 }

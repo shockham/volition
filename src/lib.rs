@@ -12,7 +12,7 @@ pub use winit::MouseButton;
 use winit::MouseScrollDelta;
 use winit::KeyboardInput;
 use winit::EventsLoop;
-use winit::WindowEvent::{MouseInput, MouseWheel, ReceivedCharacter, CursorMoved};
+use winit::WindowEvent::{MouseInput, MouseWheel, ReceivedCharacter, CursorMoved, AxisMotion};
 use winit::WindowEvent::KeyboardInput as WKeyboardInput;
 use winit::DeviceEvent::MouseMotion;
 use winit::Event::{WindowEvent, DeviceEvent};
@@ -28,6 +28,8 @@ pub struct Input {
     pub mouse_delta: (f32, f32),
     /// The raw difference in mouse position from the last frame
     pub raw_mouse_delta: (f32, f32),
+    /// The mouse axis motion for the last frame
+    pub mouse_axis_motion: (f32, f32),
     /// The difference in position of the mouse when from the previous frame
     pub mouse_wheel_delta: (f32, f32),
     /// The keys that are currently pressed down
@@ -61,6 +63,7 @@ impl Input {
             mouse_pos: (0f32, 0f32),
             mouse_delta: (0f32, 0f32),
             raw_mouse_delta: (0f32, 0f32),
+            mouse_axis_motion: (0f32, 0f32),
             mouse_wheel_delta: (0f32, 0f32),
             keys_down: Vec::new(),
             keys_pressed: Vec::new(),
@@ -81,6 +84,7 @@ impl Input {
             mouse_pos: (0f32, 0f32),
             mouse_delta: (0f32, 0f32),
             raw_mouse_delta: (0f32, 0f32),
+            mouse_axis_motion: (0f32, 0f32),
             mouse_wheel_delta: (0f32, 0f32),
             keys_down: Vec::new(),
             keys_pressed: Vec::new(),
@@ -98,6 +102,8 @@ impl Input {
     /// This method updates the state of the inputs
     pub fn update_inputs(&mut self, window: &Window) {
         let (width, height) = window.get_outer_size().unwrap();
+        let hidpi_factor = window.hidpi_factor();
+        let (width, height) = (width as f32 * hidpi_factor, height as f32 * hidpi_factor);
 
         // reset properties
         {
@@ -118,6 +124,7 @@ impl Input {
         let keys_released = &mut self.keys_released;
         let mouse_delta = &mut self.mouse_delta;
         let raw_mouse_delta = &mut self.raw_mouse_delta;
+        let mouse_axis_motion = &mut self.mouse_axis_motion;
         let mouse_pos = &mut self.mouse_pos;
         let mouse_btns_down = &mut self.mouse_btns_down;
         let mouse_btns_pressed = &mut self.mouse_btns_pressed;
@@ -156,15 +163,16 @@ impl Input {
                         }
                     }
                     CursorMoved { position: (x, y), .. } => {
-                        let mouse_diff = (
-                            (width / 2) as f32 - x as f32,
-                            (height / 2) as f32 - y as f32,
-                        );
-
-                        mouse_delta.0 = mouse_diff.0;
-                        mouse_delta.1 = mouse_diff.1;
-
+                        mouse_delta.0 = (width / 2f32) - x as f32;
+                        mouse_delta.1 = (height / 2f32) - y as f32;
                         (*mouse_pos) = (x as f32, y as f32);
+                    }
+                    AxisMotion { axis, value, .. } => {
+                        match axis {
+                            0 => mouse_axis_motion.0 = (width / 2f32) - value as f32,
+                            1 => mouse_axis_motion.1 = (height / 2f32) - value as f32,
+                            _ => {}
+                        }
                     }
                     MouseInput {
                         state: Pressed,
@@ -209,7 +217,7 @@ impl Input {
                 window.set_cursor_state(Hide).ok();
                 self.cursor_grabbed = false;
             }
-            let _ = window.set_cursor_position((width / 2) as i32, (height / 2) as i32);
+            let _ = window.set_cursor_position((width / 2f32) as i32, (height / 2f32) as i32);
         } else {
             if !self.cursor_grabbed {
                 window.set_cursor_state(Normal).ok();
