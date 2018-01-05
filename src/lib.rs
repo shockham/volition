@@ -102,8 +102,8 @@ impl Input {
     /// This method updates the state of the inputs
     pub fn update_inputs(&mut self, window: &Window) {
         let (width, height) = window.get_outer_size().unwrap();
-        let hidpi_factor = window.hidpi_factor();
-        let (width, height) = (width as f32 * hidpi_factor, height as f32 * hidpi_factor);
+        let h_width = (width / 2u32) as f32;
+        let h_height = (height / 2u32) as f32;
 
         // reset properties
         {
@@ -163,14 +163,14 @@ impl Input {
                         }
                     }
                     CursorMoved { position: (x, y), .. } => {
-                        mouse_delta.0 = (width / 2f32) - x as f32;
-                        mouse_delta.1 = (height / 2f32) - y as f32;
+                        mouse_delta.0 = (h_width - x as f32) / width as f32;
+                        mouse_delta.1 = (h_height - y as f32) / height as f32;
                         (*mouse_pos) = (x as f32, y as f32);
                     }
                     AxisMotion { axis, value, .. } => {
                         match axis {
-                            0 => mouse_axis_motion.0 = (width / 2f32) - value as f32,
-                            1 => mouse_axis_motion.1 = (height / 2f32) - value as f32,
+                            0 => mouse_axis_motion.0 = (h_width - value as f32) / width as f32,
+                            1 => mouse_axis_motion.1 = (h_height - value as f32) / height as f32,
                             _ => {}
                         }
                     }
@@ -217,7 +217,7 @@ impl Input {
                 window.set_cursor_state(Hide).ok();
                 self.cursor_grabbed = false;
             }
-            let _ = window.set_cursor_position((width / 2f32) as i32, (height / 2f32) as i32);
+            let _ = window.set_cursor_position(h_width as i32, h_height as i32);
         } else {
             if !self.cursor_grabbed {
                 window.set_cursor_state(Normal).ok();
