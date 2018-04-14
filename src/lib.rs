@@ -218,11 +218,9 @@ impl Input {
                 self.cursor_grabbed = false;
             }
             let _ = window.set_cursor_position(h_width as i32, h_height as i32);
-        } else {
-            if !self.cursor_grabbed {
-                window.set_cursor_state(Normal).ok();
-                self.cursor_grabbed = true;
-            }
+        } else if !self.cursor_grabbed {
+            window.set_cursor_state(Normal).ok();
+            self.cursor_grabbed = true;
         }
     }
 }
