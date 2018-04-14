@@ -54,6 +54,13 @@ pub struct Input {
     events_loop: EventsLoop,
 }
 
+impl Default for Input {
+    /// Create a default instance of Input
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Input {
     /// Creates a new Input instance
     pub fn new() -> Input {
