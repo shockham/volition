@@ -208,11 +208,8 @@ impl Input {
                 }
             }
             DeviceEvent { event, .. } => {
-                match event {
-                    MouseMotion { delta } => {
-                        (*raw_mouse_delta) = (delta.0 as f32, delta.1 as f32);
-                    }
-                    _ => (),
+                if let MouseMotion { delta } = event {
+                    (*raw_mouse_delta) = (delta.0 as f32, delta.1 as f32);
                 }
             }
             _ => (),
