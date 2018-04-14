@@ -81,7 +81,7 @@ impl Input {
             mouse_btns_released: Vec::new(),
             hide_mouse: true,
             cursor_grabbed: false,
-            events_loop: events_loop,
+            events_loop,
         }
     }
 
@@ -102,7 +102,7 @@ impl Input {
             mouse_btns_released: Vec::new(),
             hide_mouse: true,
             cursor_grabbed: false,
-            events_loop: events_loop,
+            events_loop,
         }
     }
 
