@@ -6,6 +6,7 @@
 
 extern crate winit;
 
+use winit::dpi::LogicalPosition;
 use winit::DeviceEvent::MouseMotion;
 use winit::ElementState::{Pressed, Released};
 use winit::Event::{DeviceEvent, WindowEvent};
@@ -17,7 +18,6 @@ pub use winit::VirtualKeyCode as Key;
 use winit::Window;
 use winit::WindowEvent::KeyboardInput as WKeyboardInput;
 use winit::WindowEvent::{AxisMotion, CursorMoved, MouseInput, MouseWheel, ReceivedCharacter};
-use winit::dpi::LogicalPosition;
 
 /// struct for abstracting the state for all the inputs
 pub struct Input {
@@ -107,7 +107,7 @@ impl Input {
 
     /// This method updates the state of the inputs
     pub fn update_inputs(&mut self, window: &Window) {
-        let (width, height):(u32, u32) = window.get_outer_size().unwrap().into();
+        let (width, height): (u32, u32) = window.get_outer_size().unwrap().into();
         let h_width = (width as u32 / 2u32) as f32;
         let h_height = (height / 2u32) as f32;
 
@@ -169,10 +169,8 @@ impl Input {
                         keys_released.push(key);
                     }
                 }
-                CursorMoved {
-                    position: pos, ..
-                } => {
-                    let (x, y):(i32, i32) = pos.into();
+                CursorMoved { position: pos, .. } => {
+                    let (x, y): (i32, i32) = pos.into();
                     mouse_delta.0 = (h_width - x as f32) / width as f32;
                     mouse_delta.1 = (h_height - y as f32) / height as f32;
                     (*mouse_pos) = (x as f32, y as f32);
@@ -202,9 +200,9 @@ impl Input {
                     (*mouse_wheel_delta) = match delta {
                         MouseScrollDelta::LineDelta(x, y) => (x, y),
                         MouseScrollDelta::PixelDelta(pos) => {
-                            let (x, y):(i32, i32) = pos.into();
+                            let (x, y): (i32, i32) = pos.into();
                             (x as f32, y as f32)
-                        },
+                        }
                     };
                 }
                 ReceivedCharacter(c) => characters_down.push(c),
