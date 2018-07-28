@@ -6,7 +6,6 @@
 
 extern crate winit;
 
-use winit::CursorState::{Hide, Normal};
 use winit::DeviceEvent::MouseMotion;
 use winit::ElementState::{Pressed, Released};
 use winit::Event::{DeviceEvent, WindowEvent};
@@ -18,6 +17,7 @@ pub use winit::VirtualKeyCode as Key;
 use winit::Window;
 use winit::WindowEvent::KeyboardInput as WKeyboardInput;
 use winit::WindowEvent::{AxisMotion, CursorMoved, MouseInput, MouseWheel, ReceivedCharacter};
+use winit::dpi::LogicalPosition;
 
 /// struct for abstracting the state for all the inputs
 pub struct Input {
@@ -107,8 +107,8 @@ impl Input {
 
     /// This method updates the state of the inputs
     pub fn update_inputs(&mut self, window: &Window) {
-        let (width, height) = window.get_outer_size().unwrap();
-        let h_width = (width / 2u32) as f32;
+        let (width, height):(u32, u32) = window.get_outer_size().unwrap().into();
+        let h_width = (width as u32 / 2u32) as f32;
         let h_height = (height / 2u32) as f32;
 
         // reset properties
@@ -170,8 +170,9 @@ impl Input {
                     }
                 }
                 CursorMoved {
-                    position: (x, y), ..
+                    position: pos, ..
                 } => {
+                    let (x, y):(i32, i32) = pos.into();
                     mouse_delta.0 = (h_width - x as f32) / width as f32;
                     mouse_delta.1 = (h_height - y as f32) / height as f32;
                     (*mouse_pos) = (x as f32, y as f32);
@@ -200,7 +201,10 @@ impl Input {
                 MouseWheel { delta, .. } => {
                     (*mouse_wheel_delta) = match delta {
                         MouseScrollDelta::LineDelta(x, y) => (x, y),
-                        MouseScrollDelta::PixelDelta(x, y) => (x, y),
+                        MouseScrollDelta::PixelDelta(pos) => {
+                            let (x, y):(i32, i32) = pos.into();
+                            (x as f32, y as f32)
+                        },
                     };
                 }
                 ReceivedCharacter(c) => characters_down.push(c),
@@ -217,12 +221,13 @@ impl Input {
         if self.hide_mouse {
             // set the mouse to the centre of the screen
             if self.cursor_grabbed {
-                window.set_cursor_state(Hide).ok();
+                window.hide_cursor(true);
                 self.cursor_grabbed = false;
             }
-            let _ = window.set_cursor_position(h_width as i32, h_height as i32);
+            let logi_pos = LogicalPosition::new(h_width as f64, h_height as f64);
+            let _ = window.set_cursor_position(logi_pos);
         } else if !self.cursor_grabbed {
-            window.set_cursor_state(Normal).ok();
+            window.hide_cursor(false);
             self.cursor_grabbed = true;
         }
     }
