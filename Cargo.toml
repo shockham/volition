@@ -10,4 +10,4 @@ documentation = "https://docs.rs/volition/"
 description = "Minimalist input lib"
 
 [dependencies]
-winit = "0.16"
+winit = "0.17"
