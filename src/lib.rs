@@ -107,7 +107,7 @@ impl Input {
 
     /// This method updates the state of the inputs
     pub fn update_inputs(&mut self, window: &Window) {
-        let (width, height): (u32, u32) = window.get_outer_size().unwrap().into();
+        let (width, height): (u32, u32) = window.get_inner_size().unwrap().into();
         let h_width = (width as u32 / 2u32) as f32;
         let h_height = (height / 2u32) as f32;
 
