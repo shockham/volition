@@ -178,8 +178,14 @@ impl Input {
                     (*mouse_pos) = (x as f32, y as f32);
                 }
                 AxisMotion { axis, value, .. } => match axis {
-                    0 => mouse_axis_motion.0 = (h_width - (value / hidpi_factor) as f32) / width as f32,
-                    1 => mouse_axis_motion.1 = (h_height - (value / hidpi_factor) as f32) / height as f32,
+                    0 => {
+                        mouse_axis_motion.0 =
+                            (h_width - (value / hidpi_factor) as f32) / width as f32
+                    }
+                    1 => {
+                        mouse_axis_motion.1 =
+                            (h_height - (value / hidpi_factor) as f32) / height as f32
+                    }
                     _ => {}
                 },
                 MouseInput {
