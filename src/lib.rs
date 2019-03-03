@@ -111,6 +111,8 @@ impl Input {
         let h_width = (width as u32 / 2u32) as f32;
         let h_height = (height / 2u32) as f32;
 
+        let hidpi_factor = window.get_hidpi_factor();
+
         // reset properties
         {
             // reset the delta in case the mouse does not move
@@ -176,8 +178,8 @@ impl Input {
                     (*mouse_pos) = (x as f32, y as f32);
                 }
                 AxisMotion { axis, value, .. } => match axis {
-                    0 => mouse_axis_motion.0 = (h_width - value as f32) / width as f32,
-                    1 => mouse_axis_motion.1 = (h_height - value as f32) / height as f32,
+                    0 => mouse_axis_motion.0 = (h_width - (value / hidpi_factor) as f32) / width as f32,
+                    1 => mouse_axis_motion.1 = (h_height - (value / hidpi_factor) as f32) / height as f32,
                     _ => {}
                 },
                 MouseInput {
