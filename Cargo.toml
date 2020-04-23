@@ -8,6 +8,7 @@ repository = "https://github.com/shockham/volition"
 homepage = "https://github.com/shockham/volition"
 documentation = "https://docs.rs/volition/"
 description = "Minimalist input lib"
+edition = "2018"
 
 [dependencies]
 winit = "0.19"

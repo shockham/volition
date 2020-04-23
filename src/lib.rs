@@ -4,8 +4,6 @@
 
 #![deny(missing_docs)]
 
-extern crate winit;
-
 use winit::dpi::LogicalPosition;
 use winit::DeviceEvent::MouseMotion;
 use winit::ElementState::{Pressed, Released};
