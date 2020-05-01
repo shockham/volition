@@ -1,19 +1,28 @@
 use volition::Input;
-use winit::{EventsLoop, Window};
+use winit::{
+    event_loop::{ControlFlow, EventLoop},
+    window::Window,
+};
 
 use std::thread;
 use std::time::Duration;
 
 fn main() {
-    let events_loop = EventsLoop::new();
-    let window = Window::new(&events_loop).unwrap();
+    let event_loop = EventLoop::new();
+    let window = Window::new(&event_loop).unwrap();
 
-    let mut input = Input::from_existing(events_loop);
+    let mut input = Input::new();
 
-    for _ in 0..10 {
+    let mut counter = 0;
+
+    event_loop.run(move |event, _, control_flow| {
         thread::sleep(Duration::new(1u64, 0u32));
-        input.update_inputs(&window);
+        input.update_inputs(&window, event);
         println!("{:?}", input.keys_down);
         println!("{:?}", input.mouse_axis_motion);
-    }
+        counter += 1;
+        if counter > 4 {
+            *control_flow = ControlFlow::Exit;
+        }
+    });
 }

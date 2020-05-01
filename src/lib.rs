@@ -5,17 +5,18 @@
 #![deny(missing_docs)]
 
 use winit::dpi::LogicalPosition;
-use winit::DeviceEvent::MouseMotion;
-use winit::ElementState::{Pressed, Released};
-use winit::Event::{DeviceEvent, WindowEvent};
-use winit::EventsLoop;
-use winit::KeyboardInput;
-pub use winit::MouseButton;
-use winit::MouseScrollDelta;
-pub use winit::VirtualKeyCode as Key;
-use winit::Window;
-use winit::WindowEvent::KeyboardInput as WKeyboardInput;
-use winit::WindowEvent::{AxisMotion, CursorMoved, MouseInput, MouseWheel, ReceivedCharacter};
+use winit::event::DeviceEvent::MouseMotion;
+use winit::event::ElementState::{Pressed, Released};
+use winit::event::Event::{self, DeviceEvent, WindowEvent};
+use winit::event::KeyboardInput;
+pub use winit::event::MouseButton;
+use winit::event::MouseScrollDelta;
+pub use winit::event::VirtualKeyCode as Key;
+use winit::event::WindowEvent::KeyboardInput as WKeyboardInput;
+use winit::event::WindowEvent::{
+    AxisMotion, CursorMoved, MouseInput, MouseWheel, ReceivedCharacter,
+};
+use winit::window::Window;
 
 /// struct for abstracting the state for all the inputs
 pub struct Input {
@@ -47,8 +48,6 @@ pub struct Input {
     pub hide_mouse: bool,
     /// Internal field to track if the cursor is grabbed
     cursor_grabbed: bool,
-    /// Event loop for the window
-    events_loop: EventsLoop,
 }
 
 impl Default for Input {
@@ -61,8 +60,6 @@ impl Default for Input {
 impl Input {
     /// Creates a new Input instance
     pub fn new() -> Input {
-        let events_loop = EventsLoop::new();
-
         Input {
             mouse_pos: (0f32, 0f32),
             mouse_delta: (0f32, 0f32),
@@ -78,38 +75,16 @@ impl Input {
             mouse_btns_released: Vec::new(),
             hide_mouse: true,
             cursor_grabbed: false,
-            events_loop,
-        }
-    }
-
-    /// Creates a new Input instance from existing events_loop
-    pub fn from_existing(events_loop: EventsLoop) -> Input {
-        Input {
-            mouse_pos: (0f32, 0f32),
-            mouse_delta: (0f32, 0f32),
-            raw_mouse_delta: (0f32, 0f32),
-            mouse_axis_motion: (0f32, 0f32),
-            mouse_wheel_delta: (0f32, 0f32),
-            keys_down: Vec::new(),
-            keys_pressed: Vec::new(),
-            keys_released: Vec::new(),
-            characters_down: Vec::new(),
-            mouse_btns_down: Vec::new(),
-            mouse_btns_pressed: Vec::new(),
-            mouse_btns_released: Vec::new(),
-            hide_mouse: true,
-            cursor_grabbed: false,
-            events_loop,
         }
     }
 
     /// This method updates the state of the inputs
-    pub fn update_inputs(&mut self, window: &Window) {
-        let (width, height): (u32, u32) = window.get_inner_size().unwrap().into();
+    pub fn update_inputs(&mut self, window: &Window, event: Event<()>) {
+        let (width, height): (u32, u32) = window.inner_size().into();
         let h_width = (width as u32 / 2u32) as f32;
         let h_height = (height / 2u32) as f32;
 
-        let hidpi_factor = window.get_hidpi_factor();
+        let hidpi_factor = window.scale_factor();
 
         // reset properties
         {
@@ -139,7 +114,7 @@ impl Input {
         let characters_down = &mut self.characters_down;
 
         // polling and handling the events received by the display
-        self.events_loop.poll_events(|event| match event {
+        match event {
             WindowEvent { event, .. } => match event {
                 WKeyboardInput {
                     input:
@@ -220,18 +195,19 @@ impl Input {
                 }
             }
             _ => (),
-        });
+        }
 
+        // TODO: Fix mouse grabbing, poss. using set_cursor_grab
         if self.hide_mouse {
             // set the mouse to the centre of the screen
             if self.cursor_grabbed {
-                window.hide_cursor(true);
+                window.set_cursor_visible(true);
                 self.cursor_grabbed = false;
             }
             let logi_pos = LogicalPosition::new(h_width as f64, h_height as f64);
             let _ = window.set_cursor_position(logi_pos);
         } else if !self.cursor_grabbed {
-            window.hide_cursor(false);
+            window.set_cursor_visible(false);
             self.cursor_grabbed = true;
         }
     }
