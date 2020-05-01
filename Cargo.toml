@@ -1,6 +1,6 @@
 [package]
 name = "volition"
-version = "0.0.19"
+version = "0.1.0"
 authors = ["shockham <samuel.hockham@gmail.com>"]
 license = "MIT"
 readme = "README.md"
