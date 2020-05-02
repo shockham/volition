@@ -4,7 +4,7 @@
 
 #![deny(missing_docs)]
 
-use winit::dpi::LogicalPosition;
+use winit::dpi::PhysicalPosition;
 use winit::event::DeviceEvent::MouseMotion;
 use winit::event::ElementState::{Pressed, Released};
 use winit::event::Event::{self, DeviceEvent, WindowEvent};
@@ -79,7 +79,7 @@ impl Input {
     }
 
     /// This method updates the state of the inputs
-    pub fn update_inputs(&mut self, window: &Window, event: Event<()>) {
+    pub fn update_inputs(&mut self, window: &Window, events: &Vec<Event<()>>) {
         let (width, height): (u32, u32) = window.inner_size().into();
         let h_width = (width as u32 / 2u32) as f32;
         let h_height = (height / 2u32) as f32;
@@ -92,7 +92,7 @@ impl Input {
             self.mouse_delta = (0f32, 0f32);
             self.mouse_wheel_delta = (0f32, 0f32);
 
-            // keys pressed is only for a single frame so clear
+           // keys pressed is only for a single frame so clear
             self.keys_pressed.clear();
             self.keys_released.clear();
             self.mouse_btns_pressed.clear();
@@ -114,87 +114,89 @@ impl Input {
         let characters_down = &mut self.characters_down;
 
         // polling and handling the events received by the display
-        match event {
-            WindowEvent { event, .. } => match event {
-                WKeyboardInput {
-                    input:
-                        KeyboardInput {
-                            state: Pressed,
-                            virtual_keycode: vkey,
-                            ..
-                        },
-                    ..
-                } => {
-                    if let Some(key) = vkey {
-                        keys_down.push(key);
-                        keys_pressed.push(key);
-                    }
-                }
-                WKeyboardInput {
-                    input:
-                        KeyboardInput {
-                            state: Released,
-                            virtual_keycode: vkey,
-                            ..
-                        },
-                    ..
-                } => {
-                    if let Some(key) = vkey {
-                        keys_down.retain(|&k| k != key);
-                        keys_released.push(key);
-                    }
-                }
-                CursorMoved { position: pos, .. } => {
-                    let (x, y): (i32, i32) = pos.into();
-                    mouse_delta.0 = (h_width - x as f32) / width as f32;
-                    mouse_delta.1 = (h_height - y as f32) / height as f32;
-                    (*mouse_pos) = (x as f32, y as f32);
-                }
-                AxisMotion { axis, value, .. } => match axis {
-                    0 => {
-                        mouse_axis_motion.0 =
-                            (h_width - (value / hidpi_factor) as f32) / width as f32
-                    }
-                    1 => {
-                        mouse_axis_motion.1 =
-                            (h_height - (value / hidpi_factor) as f32) / height as f32
-                    }
-                    _ => {}
-                },
-                MouseInput {
-                    state: Pressed,
-                    button: btn,
-                    ..
-                } => {
-                    mouse_btns_down.push(btn);
-                    mouse_btns_pressed.push(btn);
-                }
-                MouseInput {
-                    state: Released,
-                    button: btn,
-                    ..
-                } => {
-                    mouse_btns_down.retain(|&mb| mb != btn);
-                    mouse_btns_released.push(btn);
-                }
-                MouseWheel { delta, .. } => {
-                    (*mouse_wheel_delta) = match delta {
-                        MouseScrollDelta::LineDelta(x, y) => (x, y),
-                        MouseScrollDelta::PixelDelta(pos) => {
-                            let (x, y): (i32, i32) = pos.into();
-                            (x as f32, y as f32)
+        for event in events {
+            match event {
+                WindowEvent { event, .. } => match event {
+                    WKeyboardInput {
+                        input:
+                            KeyboardInput {
+                                state: Pressed,
+                                virtual_keycode: vkey,
+                                ..
+                            },
+                        ..
+                    } => {
+                        if let Some(key) = vkey {
+                            keys_down.push(*key);
+                            keys_pressed.push(*key);
                         }
-                    };
+                    }
+                    WKeyboardInput {
+                        input:
+                            KeyboardInput {
+                                state: Released,
+                                virtual_keycode: vkey,
+                                ..
+                            },
+                        ..
+                    } => {
+                        if let Some(key) = vkey {
+                            keys_down.retain(|&k| k != *key);
+                            keys_released.push(*key);
+                        }
+                    }
+                    CursorMoved { position: pos, .. } => {
+                        let (x, y): (i32, i32) = (*pos).into();
+                        mouse_delta.0 = (h_width - x as f32) / width as f32;
+                        mouse_delta.1 = (h_height - y as f32) / height as f32;
+                        (*mouse_pos) = (x as f32, y as f32);
+                    }
+                    AxisMotion { axis, value, .. } => match axis {
+                        0 => {
+                            mouse_axis_motion.0 =
+                                (h_width - (value / hidpi_factor) as f32) / width as f32
+                        }
+                        1 => {
+                            mouse_axis_motion.1 =
+                                (h_height - (value / hidpi_factor) as f32) / height as f32
+                        }
+                        _ => {}
+                    },
+                    MouseInput {
+                        state: Pressed,
+                        button: btn,
+                        ..
+                    } => {
+                        mouse_btns_down.push(*btn);
+                        mouse_btns_pressed.push(*btn);
+                    }
+                    MouseInput {
+                        state: Released,
+                        button: btn,
+                        ..
+                    } => {
+                        mouse_btns_down.retain(|&mb| mb != *btn);
+                        mouse_btns_released.push(*btn);
+                    }
+                    MouseWheel { delta, .. } => {
+                        (*mouse_wheel_delta) = match delta {
+                            MouseScrollDelta::LineDelta(x, y) => (*x, *y),
+                            MouseScrollDelta::PixelDelta(pos) => {
+                                let (x, y): (i32, i32) = (*pos).into();
+                                (x as f32, y as f32)
+                            }
+                        };
+                    }
+                    ReceivedCharacter(c) => characters_down.push(*c),
+                    _ => (),
+                },
+                DeviceEvent { event, .. } => {
+                    if let MouseMotion { delta } = event {
+                        (*raw_mouse_delta) = (delta.0 as f32, delta.1 as f32);
+                    }
                 }
-                ReceivedCharacter(c) => characters_down.push(c),
                 _ => (),
-            },
-            DeviceEvent { event, .. } => {
-                if let MouseMotion { delta } = event {
-                    (*raw_mouse_delta) = (delta.0 as f32, delta.1 as f32);
-                }
             }
-            _ => (),
         }
 
         // TODO: Fix mouse grabbing, poss. using set_cursor_grab
@@ -204,7 +206,7 @@ impl Input {
                 window.set_cursor_visible(true);
                 self.cursor_grabbed = false;
             }
-            let logi_pos = LogicalPosition::new(h_width as f64, h_height as f64);
+            let logi_pos = PhysicalPosition::new(h_width as f64, h_height as f64);
             let _ = window.set_cursor_position(logi_pos);
         } else if !self.cursor_grabbed {
             window.set_cursor_visible(false);
