@@ -17,7 +17,7 @@ fn main() {
 
     event_loop.run(move |event, _, control_flow| {
         thread::sleep(Duration::new(1u64, 0u32));
-        input.update_inputs(&window, event);
+        input.update_inputs(&window, &vec![event]);
         println!("{:?}", input.keys_down);
         println!("{:?}", input.mouse_axis_motion);
         counter += 1;
