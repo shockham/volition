@@ -46,8 +46,6 @@ pub struct Input {
     pub mouse_btns_released: Vec<MouseButton>,
     /// Whether to show or hide the mouse
     pub hide_mouse: bool,
-    /// Internal field to track if the cursor is grabbed
-    cursor_grabbed: bool,
 }
 
 impl Default for Input {
@@ -74,7 +72,6 @@ impl Input {
             mouse_btns_pressed: Vec::new(),
             mouse_btns_released: Vec::new(),
             hide_mouse: true,
-            cursor_grabbed: false,
         }
     }
 
@@ -152,14 +149,8 @@ impl Input {
                         (*mouse_pos) = (x as f32, y as f32);
                     }
                     AxisMotion { axis, value, .. } => match axis {
-                        0 => {
-                            mouse_axis_motion.0 =
-                                (h_width - (value / hidpi_factor) as f32) / width as f32
-                        }
-                        1 => {
-                            mouse_axis_motion.1 =
-                                (h_height - (value / hidpi_factor) as f32) / height as f32
-                        }
+                        0 => mouse_axis_motion.0 = *value as f32,
+                        1 => mouse_axis_motion.1 = *value as f32,
                         _ => {}
                     },
                     MouseInput {
@@ -199,18 +190,12 @@ impl Input {
             }
         }
 
-        // TODO: Fix mouse grabbing, poss. using set_cursor_grab
         if self.hide_mouse {
-            // set the mouse to the centre of the screen
-            if self.cursor_grabbed {
-                window.set_cursor_visible(true);
-                self.cursor_grabbed = false;
-            }
-            let logi_pos = PhysicalPosition::new(h_width as f64, h_height as f64);
-            let _ = window.set_cursor_position(logi_pos);
-        } else if !self.cursor_grabbed {
             window.set_cursor_visible(false);
-            self.cursor_grabbed = true;
+            window.set_cursor_grab(true).unwrap();
+        } else {
+            window.set_cursor_visible(true);
+            window.set_cursor_grab(false).unwrap();
         }
     }
 }
