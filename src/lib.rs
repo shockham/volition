@@ -4,7 +4,6 @@
 
 #![deny(missing_docs)]
 
-use winit::dpi::PhysicalPosition;
 use winit::event::DeviceEvent::MouseMotion;
 use winit::event::ElementState::{Pressed, Released};
 use winit::event::Event::{self, DeviceEvent, WindowEvent};
@@ -80,8 +79,6 @@ impl Input {
         let (width, height): (u32, u32) = window.inner_size().into();
         let h_width = (width as u32 / 2u32) as f32;
         let h_height = (height / 2u32) as f32;
-
-        let hidpi_factor = window.scale_factor();
 
         // reset properties
         {
