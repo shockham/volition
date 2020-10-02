@@ -4,6 +4,7 @@
 
 #![deny(missing_docs)]
 
+use winit::dpi::PhysicalPosition;
 use winit::event::DeviceEvent::MouseMotion;
 use winit::event::ElementState::{Pressed, Released};
 use winit::event::Event::{self, DeviceEvent, WindowEvent};
@@ -190,6 +191,7 @@ impl Input {
         if self.hide_mouse {
             window.set_cursor_visible(false);
             window.set_cursor_grab(true).unwrap();
+            let _ = window.set_cursor_position(PhysicalPosition::new(h_width, h_height));
         } else {
             window.set_cursor_visible(true);
             window.set_cursor_grab(false).unwrap();
